@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tautkan Akun WA - Sistem Penggajian Lazismu Tulungagung</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Transisi untuk sidebar agar lebih halus saat diubah ukurannya */
+        .sidebar {
+            transition: transform 0.3s ease-in-out;
+        }
+        .sidebar-hover:hover {
+            background-color: #e2e8f0; /* bg-gray-200 */
+        }
+        .qr-code-large {
+            width: 250px;
+            height: 250px;
+            object-fit: contain;
+        }
+        /* Pastikan body mengisi seluruh tinggi viewport */
+        html, body {
+            height: 100%;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+    <!-- Kontainer Utama Aplikasi: Dipusatkan dan diberi lebar maksimum pada layar besar -->
+    <div class="mx-auto max-w-screen-xl h-screen shadow-lg md:rounded-lg overflow-hidden flex bg-gray-100">
+        <!-- Sidebar -->
+        <div id="sidebar" class="sidebar fixed inset-y-0 left-0 w-64 bg-white flex-shrink-0 flex flex-col z-50
+                                  transform -translate-x-full md:translate-x-0 md:relative md:flex md:shadow-lg">
+            <div class="p-4 border-b border-gray-200">
+                <h2 class="text-xl font-bold text-gray-800">Lazismu Tulungagung</h2>
+                <p class="text-sm text-gray-600">Sistem Penggajian</p>
+            </div>
+
+            <nav class="mt-4 flex-1">
+                <a href="/dashboard" class="block px-4 py-3 text-gray-700 sidebar-hover rounded-r-full mr-4">
+                    <i class="fas fa-home mr-2 w-5 text-center"></i> Dashboard
+                </a>
+
+                <% if (role === 'admin') { %>
+                <a href="/kelola_gaji" class="block px-4 py-3 text-gray-700 sidebar-hover rounded-r-full mr-4">
+                    <i class="fas fa-money-bill-wave mr-2 w-5 text-center"></i> Kelola Gaji
+                </a>
+                <a href="/kelola_user" class="block px-4 py-3 text-gray-700 sidebar-hover rounded-r-full mr-4">
+                    <i class="fas fa-users mr-2 w-5 text-center"></i> Kelola User
+                </a>
+                <% } %>
+
+                <a href="/wa_blast" class="block px-4 py-3 text-gray-700 sidebar-hover rounded-r-full mr-4">
+                    <i class="fab fa-whatsapp mr-2 w-5 text-center"></i> WA Blast
+                </a>
+
+                <% if (role === 'user') { %>
+                <a href="/wa_link" class="block px-4 py-3 text-gray-700 sidebar-hover rounded-r-full mr-4 bg-blue-100 text-blue-700 font-semibold shadow-sm">
+                    <i class="fas fa-link mr-2 w-5 text-center"></i> Tautkan Akun WA
+                </a>
+                <% } %>
+
+                <a href="/laporan" class="block px-4 py-3 text-gray-700 sidebar-hover rounded-r-full mr-4">
+                    <i class="fas fa-file-export mr-2 w-5 text-center"></i> Laporan
+                </a>
+
+                <a href="/logout" class="block px-4 py-3 text-gray-700 sidebar-hover rounded-r-full mr-4 mt-auto border-t border-gray-200">
+                    <i class="fas fa-sign-out-alt mr-2 w-5 text-center"></i> Keluar
+                </a>
+            </nav>
+
+            <div class="p-4 border-t border-gray-200">
+                <div class="text-sm text-gray-600">
+                    <p>Pengguna: <span class="font-medium text-gray-800"><%= username %></span></p>
+                    <p>Status: <span class="font-medium text-gray-800"><%= role === 'admin' ? 'Admin' : 'User' %></span></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Konten Utama -->
+        <div class="flex-1 overflow-y-auto p-4 md:p-6 w-full md:ml-0">
+            <!-- Header untuk mobile dengan hamburger menu -->
+            <div class="flex items-center justify-between bg-white p-4 rounded-lg shadow-md mb-6 md:hidden">
+                <h1 class="text-xl font-bold text-gray-800">Tautkan Akun WA</h1>
+                <button id="sidebarToggle" class="text-gray-600 hover:text-gray-900 focus:outline-none">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+            </div>
+
+            <div class="bg-white p-4 md:p-6 rounded-lg shadow-md mb-6 hidden md:block">
+                <h1 class="text-2xl font-bold text-gray-800 mb-4">Tautkan Akun WhatsApp</h1>
+                <p class="text-gray-600">Hubungkan akun WhatsApp Anda untuk menerima notifikasi gaji dan menggunakan fitur blast.</p>
+            </div>
+
+            <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200 text-center">
+                <h2 class="text-xl font-bold text-gray-800 mb-4">Status Koneksi WhatsApp</h2>
+
+                <div id="status-display" class="flex flex-col items-center justify-center space-y-4">
+                    <% if (whatsappLinked) { %>
+                        <img src="images/whatsapp_connected.png" alt="WhatsApp Connected" class="qr-code-large rounded-lg border p-2">
+                        <p class="text-green-600 font-semibold text-lg">Akun WhatsApp Anda sudah tertaut!</p>
+                        <p class="text-gray-600 text-sm"><%= qrCodeMessage %></p>
+                        <button id="disconnectBtn"
+                                class="bg-red-600 text-white py-2.5 px-6 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition duration-200 shadow-md">
+                            <i class="fas fa-unlink mr-2"></i> Putuskan Tautan
+                        </button>
+                    <% } else if (qrCodeUrl) { %>
+                        <img src="<%= qrCodeUrl %>" alt="QR Code" class="qr-code-large rounded-lg border p-2">
+                        <p class="text-yellow-600 font-semibold text-lg">QR Code Tersedia</p>
+                        <p class="text-gray-600 text-sm"><%= qrCodeMessage %></p>
+                        <p class="text-xs text-gray-500">QR Code akan refresh secara otomatis jika belum discan dalam beberapa waktu.</p>
+                        <button id="disconnectBtn"
+                                class="bg-red-600 text-white py-2.5 px-6 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition duration-200 shadow-md">
+                            <i class="fas fa-unlink mr-2"></i> Batalkan Sesi & Putuskan Tautan
+                        </button>
+                    <% } else { %>
+                        <div class="flex items-center justify-center w-64 h-64 bg-gray-100 rounded-lg border border-gray-300">
+                            <i class="fas fa-qrcode text-gray-500 text-6xl"></i>
+                        </div>
+                        <p class="text-gray-600 font-semibold text-lg">Belum Tertaut</p>
+                        <p class="text-gray-600 text-sm">QR Code akan muncul di sini setelah Anda mengklik tombol.</p>
+                        <button id="connectBtn"
+                                class="bg-blue-600 text-white py-2.5 px-6 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-200 shadow-md">
+                            <i class="fas fa-qrcode mr-2"></i> Tautkan Akun WhatsApp
+                        </button>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const connectBtn = document.getElementById('connectBtn');
+        const disconnectBtn = document.getElementById('disconnectBtn');
+        const statusDisplay = document.getElementById('status-display');
+
+        async function updateStatus(data) {
+            let htmlContent = '';
+            if (data.status === 'connected') {
+                htmlContent = `
+                    <img src="images/whatsapp_connected.png" alt="WhatsApp Connected" class="qr-code-large rounded-lg border p-2">
+                    <p class="text-green-600 font-semibold text-lg">Akun WhatsApp Anda sudah tertaut!</p>
+                    <p class="text-gray-600 text-sm">Sesi aktif.</p>
+                    <button id="disconnectBtn" class="bg-red-600 text-white py-2.5 px-6 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition duration-200 shadow-md">
+                        <i class="fas fa-unlink mr-2"></i> Putuskan Tautan
+                    </button>
+                `;
+            } else if (data.status === 'qr_available' && data.qr_code_image) {
+                htmlContent = `
+                    <img src="${data.qr_code_image}" alt="QR Code" class="qr-code-large rounded-lg border p-2">
+                    <p class="text-yellow-600 font-semibold text-lg">QR Code Tersedia</p>
+                    <p class="text-gray-600 text-sm">Silakan scan QR Code ini dengan aplikasi WhatsApp Anda.</p>
+                    <p class="text-xs text-gray-500">QR Code akan refresh secara otomatis jika belum discan dalam beberapa waktu.</p>
+                    <button id="disconnectBtn" class="bg-red-600 text-white py-2.5 px-6 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition duration-200 shadow-md">
+                        <i class="fas fa-unlink mr-2"></i> Batalkan Sesi & Putuskan Tautan
+                    </button>
+                `;
+            } else {
+                htmlContent = `
+                    <div class="flex items-center justify-center w-64 h-64 bg-gray-100 rounded-lg border border-gray-300">
+                        <i class="fas fa-qrcode text-gray-500 text-6xl"></i>
+                    </div>
+                    <p class="text-gray-600 font-semibold text-lg">Belum Tertaut</p>
+                    <p class="text-gray-600 text-sm">QR Code akan muncul di sini setelah Anda mengklik tombol.</p>
+                    <button id="connectBtn" class="bg-blue-600 text-white py-2.5 px-6 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-200 shadow-md">
+                        <i class="fas fa-qrcode mr-2"></i> Tautkan Akun WhatsApp
+                    </button>
+                `;
+            }
+            statusDisplay.innerHTML = htmlContent;
+            // Attach event listeners again after updating innerHTML
+            attachEventListeners();
+        }
+
+        async function handleConnect() {
+            try {
+                // Tampilkan loading
+                statusDisplay.innerHTML = `
+                    <div class="flex items-center justify-center w-64 h-64 bg-gray-100 rounded-lg border border-gray-300">
+                        <i class="fas fa-spinner fa-spin text-gray-500 text-6xl"></i>
+                    </div>
+                    <p class="text-gray-600 font-semibold text-lg">Memulai koneksi...</p>
+                    <p class="text-gray-600 text-sm">Mohon tunggu, ini mungkin memakan waktu beberapa detik.</p>
+                `;
+
+                const response = await fetch('/api/whatsapp/connect', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({})
+                });
+                const result = await response.json();
+                if (response.ok) {
+                    updateStatus(result);
+                } else {
+                    alert('Error: ' + result.message);
+                    updateStatus({ status: 'error' }); // Kembali ke status error
+                }
+            } catch (error) {
+                console.error('Error connecting:', error);
+                alert('Terjadi kesalahan saat menautkan akun WhatsApp.');
+                updateStatus({ status: 'error' }); // Kembali ke status error
+            }
+        }
+
+        async function handleDisconnect() {
+            if (!confirm('Apakah Anda yakin ingin memutuskan tautan akun WhatsApp?')) {
+                return;
+            }
+            try {
+                // Tampilkan loading
+                statusDisplay.innerHTML = `
+                    <div class="flex items-center justify-center w-64 h-64 bg-gray-100 rounded-lg border border-gray-300">
+                        <i class="fas fa-spinner fa-spin text-gray-500 text-6xl"></i>
+                    </div>
+                    <p class="text-gray-600 font-semibold text-lg">Memutuskan tautan...</p>
+                `;
+
+                const response = await fetch('/api/whatsapp/disconnect', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({})
+                });
+                const result = await response.json();
+                if (response.ok) {
+                    alert(result.message);
+                    updateStatus({ status: 'disconnected' }); // Kembali ke status disconnected
+                } else {
+                    alert('Error: ' + result.message);
+                    // Jika ada error, coba update status berdasarkan data yang ada di server
+                    window.location.reload();
+                }
+            } catch (error) {
+                console.error('Error disconnecting:', error);
+                alert('Terjadi kesalahan saat memutuskan tautan akun WhatsApp.');
+                window.location.reload();
+            }
+        }
+
+        function attachEventListeners() {
+            const currentConnectBtn = document.getElementById('connectBtn');
+            const currentDisconnectBtn = document.getElementById('disconnectBtn');
+
+            if (currentConnectBtn) {
+                currentConnectBtn.addEventListener('click', handleConnect);
+            }
+            if (currentDisconnectBtn) {
+                currentDisconnectBtn.addEventListener('click', handleDisconnect);
+            }
+        }
+
+        // Attach event listeners on initial load
+        attachEventListeners();
+    </script>
+</body>
+</html>

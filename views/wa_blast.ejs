@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp Blast - Sistem Penggajian Lazismu Tulungagung</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .sidebar {
+            transition: transform 0.3s ease-in-out;
+        }
+        .sidebar-hover:hover {
+            background-color: #e2e8f0; /* bg-gray-200 */
+        }
+        .qr-code-small {
+            width: 100px;
+            height: 100px;
+            object-fit: contain;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+    <div class="mx-auto max-w-screen-xl h-screen shadow-lg md:rounded-lg overflow-hidden flex bg-gray-100">
+        <!-- Sidebar -->
+        <div id="sidebar" class="sidebar fixed inset-y-0 left-0 w-64 bg-white flex-shrink-0 flex flex-col z-50
+                                  transform -translate-x-full md:translate-x-0 md:relative md:flex md:shadow-lg">
+            <div class="p-4 border-b border-gray-200">
+                <h2 class="text-xl font-bold text-gray-800">Lazismu Tulungagung</h2>
+                <p class="text-sm text-gray-600">Sistem Penggajian</p>
+            </div>
+
+            <nav class="mt-4 flex-1">
+                <a href="/dashboard" class="block px-4 py-3 text-gray-700 sidebar-hover rounded-r-full mr-4">
+                    <i class="fas fa-home mr-2 w-5 text-center"></i> Dashboard
+                </a>
+
+                <% if (role === 'admin') { %>
+                <a href="/kelola_gaji" class="block px-4 py-3 text-gray-700 sidebar-hover rounded-r-full mr-4">
+                    <i class="fas fa-money-bill-wave mr-2 w-5 text-center"></i> Kelola Gaji
+                </a>
+                <a href="/kelola_user" class="block px-4 py-3 text-gray-700 sidebar-hover rounded-r-full mr-4">
+                    <i class="fas fa-users mr-2 w-5 text-center"></i> Kelola User
+                </a>
+                <% } %>
+
+                <a href="/wa_blast" class="block px-4 py-3 text-gray-700 sidebar-hover rounded-r-full mr-4 bg-blue-100 text-blue-700 font-semibold shadow-sm">
+                    <i class="fab fa-whatsapp mr-2 w-5 text-center"></i> WA Blast
+                </a>
+
+                <% if (role === 'user') { %>
+                <a href="/wa_link" class="block px-4 py-3 text-gray-700 sidebar-hover rounded-r-full mr-4">
+                    <i class="fas fa-link mr-2 w-5 text-center"></i> Tautkan Akun WA
+                </a>
+                <% } %>
+
+                <a href="/laporan" class="block px-4 py-3 text-gray-700 sidebar-hover rounded-r-full mr-4">
+                    <i class="fas fa-file-export mr-2 w-5 text-center"></i> Laporan
+                </a>
+
+                <a href="/logout" class="block px-4 py-3 text-gray-700 sidebar-hover rounded-r-full mr-4 mt-auto border-t border-gray-200">
+                    <i class="fas fa-sign-out-alt mr-2 w-5 text-center"></i> Keluar
+                </a>
+            </nav>
+
+            <div class="p-4 border-t border-gray-200">
+                <div class="text-sm text-gray-600">
+                    <p>Pengguna: <span class="font-medium text-gray-800"><%= username %></span></p>
+                    <p>Status: <span class="font-medium text-gray-800"><%= role === 'admin' ? 'Admin' : 'User' %></span></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Konten Utama -->
+        <div class="flex-1 overflow-y-auto p-4 md:p-6 w-full md:ml-0">
+            <!-- Header untuk mobile dengan hamburger menu -->
+            <div class="flex items-center justify-between bg-white p-4 rounded-lg shadow-md mb-6 md:hidden">
+                <h1 class="text-xl font-bold text-gray-800">WA Blast</h1>
+                <button id="sidebarToggle" class="text-gray-600 hover:text-gray-900 focus:outline-none">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+            </div>
+
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 bg-white p-4 rounded-lg shadow-md hidden md:flex">
+                <h1 class="text-2xl font-bold text-gray-800 mb-4 md:mb-0">WhatsApp Blast</h1>
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-3 w-full md:w-auto">
+                    <form action="/wa_blast" method="GET" class="flex w-full sm:w-auto">
+                        <input type="text" name="search" placeholder="Cari..."
+                               class="flex-1 px-4 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <button type="submit"
+                                class="bg-blue-600 text-white px-4 py-2 rounded-r-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </form>
+                    <% if (role === 'admin') { %>
+                    <form action="/export_excel" method="POST" class="w-full sm:w-auto">
+                        <button type="submit" name="export_excel"
+                                class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 flex items-center justify-center w-full transition duration-200 shadow-sm">
+                            <i class="fas fa-file-excel mr-2"></i> Export Excel
+                        </button>
+                    </form>
+                    <% } %>
+                </div>
+            </div>
+
+            <!-- Bagian Status Koneksi WhatsApp -->
+            <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200 mb-8">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fab fa-whatsapp mr-3 text-green-600"></i> Status Koneksi WhatsApp
+                </h3>
+                <div class="flex flex-col sm:flex-row items-center sm:items-start space-y-4 sm:space-y-0 sm:space-x-4">
+                    <% if (whatsappSessionData && whatsappSessionData.status === 'connected') { %>
+                        <img src="images/whatsapp_connected.png" alt="WhatsApp Connected" class="qr-code-small rounded-lg border p-1">
+                        <div>
+                            <p class="text-green-600 font-semibold text-lg">Terhubung</p>
+                            <p class="text-gray-700 text-sm">ID Perangkat: <span class="font-medium"><%= whatsappSessionData.instance_id %></span></p>
+                            <p class="text-gray-600 text-xs mt-1">Akun WhatsApp Anda aktif dan siap mengirim pesan.</p>
+                        </div>
+                    <% } else if (whatsappSessionData && whatsappSessionData.status === 'qr_available') { %>
+                        <img src="<%= qrCodeUrl %>" alt="QR Code" class="qr-code-small rounded-lg border p-1">
+                        <div>
+                            <p class="text-yellow-600 font-semibold text-lg">QR Code Tersedia</p>
+                            <p class="text-gray-700 text-sm">ID Perangkat: <span class="font-medium"><%= whatsappSessionData.instance_id %></span></p>
+                            <p class="text-gray-600 text-xs mt-1">Silakan scan QR Code untuk menautkan akun Anda.</p>
+                            <a href="/wa_link" class="text-blue-600 hover:underline text-sm mt-2 block">Pergi ke halaman Tautkan Akun WA</a>
+                        </div>
+                    <% } else { %>
+                        <div class="flex items-center justify-center w-24 h-24 bg-gray-100 rounded-lg border border-gray-300">
+                            <i class="fas fa-exclamation-triangle text-gray-500 text-4xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-red-600 font-semibold text-lg">Terputus / Belum Tertaut</p>
+                            <p class="text-gray-600 text-sm mt-1">Akun WhatsApp Anda belum terhubung atau sesi terputus.</p>
+                            <a href="/wa_link" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 text-sm mt-2 inline-block">Tautkan Akun WhatsApp</a>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Bagian Upload Excel untuk Blast -->
+                <div class="bg-blue-50 p-6 rounded-lg shadow-inner border border-blue-200">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                        <i class="fas fa-upload mr-3 text-blue-600"></i> Upload Excel untuk Blast
+                    </h3>
+                    <% if (role !== 'admin') { %>
+                        <p class="text-gray-700 mb-4">Anda dapat mengirim pesan WhatsApp massal menggunakan akun Anda yang tertaut.</p>
+                        <p class="text-gray-600 mb-4">Pastikan akun WhatsApp Anda sudah tertaut di halaman <a href="/wa_link" class="text-blue-600 hover:underline font-medium">Tautkan Akun WhatsApp</a>.</p>
+                    <% } else { %>
+                        <p class="text-gray-700 mb-4">Sebagai Admin, Anda dapat mengirim pesan WhatsApp massal.</p>
+                    <% } %>
+
+                    <p class="text-gray-600 mb-4">Unggah file Excel yang berisi daftar kontak dan data untuk personalisasi pesan WhatsApp.</p>
+                    <form id="waBlastForm" action="/api/whatsapp/blast" method="POST" enctype="multipart/form-data" class="space-y-5">
+                        <div>
+                            <label for="excel_file" class="block text-sm font-medium text-gray-700 mb-1">File Excel</label>
+                            <input type="file" id="excel_file" name="excel_file" accept=".xlsx,.xls" required
+                                   class="w-full text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-500 file:text-white hover:file:bg-blue-600">
+                            <p class="text-xs text-gray-500 mt-1">Format yang didukung: .xlsx, .xls. Kolom nomor telepon harus berada di **kolom E**.</p>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label for="start_row" class="block text-sm font-medium text-gray-700 mb-1">Mulai Baris</label>
+                                <input type="number" id="start_row" name="start_row" value="2" min="2"
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <p class="text-xs text-gray-500 mt-1">Baris awal data (baris 1 adalah header).</p>
+                            </div>
+                            <div>
+                                <label for="end_row" class="block text-sm font-medium text-gray-700 mb-1">Sampai Baris</label>
+                                <input type="number" id="end_row" name="end_row" placeholder="Akhir File"
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <p class="text-xs text-gray-500 mt-1">Baris akhir data (kosongkan untuk semua).</p>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="image_file" class="block text-sm font-medium text-gray-700 mb-1">Sertakan Foto (Opsional)</label>
+                            <input type="file" id="image_file" name="image_file" accept="image/*"
+                                   class="w-full text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-purple-500 file:text-white hover:file:bg-purple-600">
+                            <p class="text-xs text-gray-500 mt-1">Pilih gambar untuk dikirim bersama pesan.</p>
+                        </div>
+
+                        <div>
+                            <label for="message_template" class="block text-sm font-medium text-gray-700 mb-1">Pesan Template</label>
+                            <textarea id="message_template" name="message_template" rows="7" required
+                                      class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-800"
+                                      placeholder="Tulis pesan Anda di sini...">Assalamualaikum wr.wb
+
+Terima kasih atas kontribusinya di Lazismu Tulungagung. Berikut rincian gaji Anda:
+
+Nama: {{A}}
+Jam Kerja: {{B}} jam
+Total Gaji: Rp {{C}}
+
+Silakan cek aplikasi penggajian untuk detail lengkap.
+
+Wassalamualaikum wr.wb</textarea>
+                            <p class="text-xs text-gray-500 mt-1">Gunakan <code>{{A}}</code>, <code>{{B}}</code>, <code>{{C}}</code> untuk menyisipkan data dari kolom Excel Anda (sesuaikan dengan urutan kolom).</p>
+                            <div class="mt-3 p-3 bg-gray-100 rounded-lg border border-gray-200 text-sm text-gray-700">
+                                <h4 class="font-semibold mb-1">Pratinjau Pesan:</h4>
+                                <p>Assalamualaikum wr.wb</p>
+                                <p>Terima kasih atas kontribusinya di Lazismu Tulungagung. Berikut rincian gaji Anda:</p>
+                                <p>Nama: [Nama dari Excel]</p>
+                                <p>Jam Kerja: [Jam Kerja dari Excel] jam</p>
+                                <p>Total Gaji: Rp [Gaji dari Excel]</p>
+                                <p>Silakan cek aplikasi penggajian untuk detail lengkap.</p>
+                                <p>Wassalamualaikum wr.wb</p>
+                            </div>
+                        </div>
+
+                        <button type="submit"
+                                class="w-full bg-green-600 text-white py-2.5 px-6 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition duration-200 shadow-md">
+                            <i class="fab fa-whatsapp mr-2"></i> Kirim WA Blast
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Bagian Informasi Bot Penggajian -->
+                <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                        <i class="fas fa-robot mr-3 text-gray-600"></i> Informasi Bot Penggajian
+                    </h3>
+                    <div class="flex flex-col items-center p-4 bg-gray-50 rounded-lg border border-gray-200">
+                        <img src="images/wa-bot-qr.png" alt="QR Code WhatsApp Bot" class="mb-4 w-48 h-48 object-contain border p-1 rounded-md shadow-sm">
+                        <p class="text-center mb-2 text-gray-700 font-medium">Ini adalah QR code untuk bot penggajian eksternal.</p>
+                        <p class="text-center text-sm text-gray-600">Ketik <span class="font-bold text-blue-700">!totalgaji</span> untuk melihat total gaji Anda.</p>
+                    </div>
+
+                    <div class="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                        <h4 class="font-semibold text-gray-800 mb-2">Cara Penggunaan Bot:</h4>
+                        <ol class="list-decimal pl-5 space-y-1 text-sm text-gray-700">
+                            <li>Scan QR code di atas menggunakan aplikasi WhatsApp Anda.</li>
+                            <li>Tambahkan nomor bot ke daftar kontak WA Anda (opsional, tapi disarankan).</li>
+                            <li>Kirim pesan dengan teks <span class="font-bold text-blue-700">!totalgaji</span> ke bot.</li>
+                            <li>Sistem akan membalas dengan ringkasan total gaji Anda.</li>
+                        </ol>
+                        <p class="mt-3 text-xs text-gray-500">Catatan: Fungsionalitas bot memerlukan setup backend terpisah dan integrasi API WhatsApp.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('waBlastForm').addEventListener('submit', async function(event) {
+            event.preventDefault(); // Mencegah form submit secara default
+
+            const form = event.target;
+            const formData = new FormData(form);
+
+            // Tampilkan pesan loading
+            const submitButton = form.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Mengirim Blast...';
+
+            try {
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    body: formData // FormData akan otomatis mengatur Content-Type: multipart/form-data
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    alert(result.message);
+                } else {
+                    alert('Error: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error submitting WA Blast:', error);
+                alert('Terjadi kesalahan saat mengirim WA Blast.');
+            } finally {
+                // Sembunyikan pesan loading dan aktifkan kembali tombol
+                submitButton.disabled = false;
+                submitButton.innerHTML = '<i class="fab fa-whatsapp mr-2"></i> Kirim WA Blast';
+            }
+        });
+
+        // Logika untuk toggle sidebar di mobile
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.getElementById('sidebarToggle');
+
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('-translate-x-full'); // Geser sidebar masuk/keluar
+            });
+        }
+
+        // Tutup sidebar jika mengklik di luar sidebar (hanya di mobile)
+        document.addEventListener('click', (event) => {
+            const isClickInsideSidebar = sidebar.contains(event.target);
+            const isClickOnToggle = sidebarToggle && sidebarToggle.contains(event.target);
+            const isMobile = window.innerWidth < 768; // Tailwind's 'md' breakpoint is 768px
+
+            if (isMobile && !isClickInsideSidebar && !isClickOnToggle && !sidebar.classList.contains('-translate-x-full')) {
+                sidebar.classList.add('-translate-x-full');
+            }
+        });
+
+        // Tutup sidebar saat ukuran layar berubah dari mobile ke desktop
+        window.addEventListener('resize', () => {
+            if (window.innerWidth >= 768) { // Jika ukuran layar >= md
+                sidebar.classList.remove('-translate-x-full'); // Pastikan sidebar terlihat
+            }
+        });
+    </script>
+</body>
+</html>

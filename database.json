@@ -1,0 +1,77 @@
+{
+  "users": [
+    {
+      "id": 3,
+      "username": "pixel",
+      "password": "$2b$10$TV40qaHmDtJ9W.mPiCJme.Y0nl6uN/TK009iBwBXazZL1BgYF0REq",
+      "role": "admin",
+      "nomorhp": "6285806917113",
+      "whatsapp_session_data": null,
+      "profile_picture_url": "/profile_pictures/profile_3_1751508711410.jpg"
+    },
+    {
+      "id": 4,
+      "username": "Bima",
+      "password": "$2b$10$tIRLfLhnGUeKcMV23HhQpOT2.Bk9LPiL7fPycig4ZrAMbZIT8m3Di",
+      "role": "user",
+      "nomorhp": "08973276977",
+      "whatsapp_session_data": null
+    },
+    {
+      "id": 5,
+      "username": "Farell rayana",
+      "password": "$2b$10$8igYl4fxNb9DlSlIoUvd9Om0Qt.QFufrJOxYF6yx2dqVzhUc4e7x.",
+      "role": "user",
+      "nomorhp": "6281217969570",
+      "whatsapp_session_data": null
+    },
+    {
+      "id": 6,
+      "username": "pixel2",
+      "password": "$2b$10$mr2HrId9lwEhmQvePVXDROwi2Bb9O/FnMumWEQ6btz/DMuYSog.aa",
+      "role": "user",
+      "nomorhp": "6285806917113",
+      "whatsapp_session_data": null
+    },
+    {
+      "id": 7,
+      "username": "Nizam_ar",
+      "password": "$2b$10$UW6MVKJMsh1Z6XgTMN0wweQaWiigUJhtJJx3JoaQvGITfkvsJOkGK",
+      "role": "user",
+      "nomorhp": "085816423814",
+      "whatsapp_session_data": null
+    }
+  ],
+  "gaji_records": [
+    {
+      "id": 1,
+      "user_id": 3,
+      "nama": "pixel yoga pratama",
+      "uraian": "video keuangan lazismu blitar",
+      "tanggal": "2025-07-01",
+      "jam_kerja": 8,
+      "jenis_pekerjaan": "video",
+      "created_at": "2025-07-02T14:19:47.523Z"
+    },
+    {
+      "id": 3,
+      "user_id": 7,
+      "nama": "Flayer AMM",
+      "uraian": "ucapan selamat dan sukses",
+      "tanggal": "2025-06-27",
+      "jam_kerja": 12,
+      "jenis_pekerjaan": "flyer",
+      "created_at": "2025-07-03T01:09:38.515Z"
+    },
+    {
+      "id": 4,
+      "user_id": 4,
+      "nama": "flayer 1 muharam",
+      "uraian": "yang di isi oleh pak rijal",
+      "tanggal": "2025-06-26",
+      "jam_kerja": 4,
+      "jenis_pekerjaan": "flyer",
+      "created_at": "2025-07-03T01:12:36.429Z"
+    }
+  ]
+}
